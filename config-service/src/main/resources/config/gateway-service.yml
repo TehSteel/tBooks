@@ -1,0 +1,45 @@
+server:
+  port: 8060
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8061/eureka/
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%X{traceId:-},%X{spanId:-}] ${LOG_LEVEL_PATTERN:-%5p} %m%n"
+
+application:
+  name: gateway-service
+
+spring:
+  security:
+    jwt_token: ""
+  output:
+    ansi:
+      enabled: always
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      routes:
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/api/user/**
+        - id: review-service
+          uri: lb://review-service
+          predicates:
+            - Path=/api/review/**
+          filters:
+            - AuthenticationFilter
+
+
+management:
+  tracing:
+    sampling:
+      probability: 1.0
